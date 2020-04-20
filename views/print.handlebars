@@ -27,8 +27,7 @@
 </div>
 <script>     
     function data(){
-        var data = new Date("{{{data}}}")
-        document.getElementById('data').innerHTML = data.toLocaleDateString()
+        document.getElementById('data').innerHTML = "{{{data}}}"
     }
     function check(id){
         var checkBox = document.getElementById(id);
@@ -38,29 +37,11 @@
         } else{
             checkBox = ""
         }
-        var cao = {
+        var data = {
             idNota: id,
             status: checkBox
         }
-        console.log(cao)
-        $.post('/statusNotas', cao)
+        $.post('/statusNotas', data)
     }
-
-    function enviar(){  
-        let data = document.getElementById("dataSaida").value
-        let agregado = document.getElementById("sAgregado").value
-
-            var item = {
-                dataSaida: data,
-                sAgregado: agregado,              
-            }
-            console.log(item)
-            $.get('/pesquisa', item)
-    }
-    
-
-
-
-
     data()
 </script>
