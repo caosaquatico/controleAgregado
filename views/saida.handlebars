@@ -1,0 +1,205 @@
+ <div style="display: inline-flex;">
+        <h1 class="cabeca" >Saida de Agregado</h1>
+        <a href="/" class="cabeca">Home</a>
+
+    </div>
+   
+    <div id="cartao" >
+        <form name="cliente" action="/enviosaidanotas" method="POST">
+            <div class="item1">
+                <div class="linha1">
+                    <h2>Data de saida</h2>
+                    <input type="date" id="nData" name="nData" required>
+                </div>
+
+                <div class="linha1">
+                    <h2>Nome do agregado</h2>
+                    <input list="lista" id="sAgregado" name="sAgregado" autocomplete="off" required>                    
+                    <datalist id="lista">                
+                        <option value="Altamir">Altamir</option>
+                        <option value="Bonny">Bonny</option>
+                        <option value="Dalsio">Dalsio</option>
+                        <option value="Junior">Junior</option>
+                        <option value="Leo Rosa">Leo Rosa</option>
+                        <option value="Wagner">Wagner</option>                        
+                    </datalist>
+                </div>
+                <input type="button" id="enviarTop" value="Enviar" onclick="enviar()">          
+            </div>
+        
+            <div class="item3">
+                <div class="linha3">
+                    <h2>Numero do pedido/ nota fiscal</h2>
+                    <input type="number" id="nPedido" name="nPedido" required>
+                </div>
+
+                <div class="linha3">
+                    <h2>Valor do pedido</h2>
+                    <input type="text" id="nValor" name="nValor" required>
+                </div>
+
+                <div class="linha3">
+                    <h2>Valor do frete</h2>
+                    <input type="number" id="nFrete" name="nFrete" required>
+                </div>
+
+                <div>
+                    <input id="enviarCliente" type="button" onclick="add()" value="Add">
+                </div>
+            </div>
+            <br>
+            <p>
+                <div class="dados" id="total">Valor total das notas: 0</div>
+                <div class="dados" id="frete">Valor total dos fretes: 0</div>
+                <div id="percentagem">%</div>
+                
+                <table id="valores">
+                    <tr>
+                        <th>Numero do pedido/ Nota Fiscal</th>
+                        <th>Valor do pedido</th>
+                        <th>Valor do Frete</th>
+                        <th>Excluir</th>
+                    </tr>          
+                </table>
+                
+            </p>
+        </form>
+    </div>
+    <script>
+
+        var somaValor = 0
+        var somaFrete = 0
+
+        function add(){
+            var np = document.forms['cliente']['nPedido'].value
+            var vp = document.forms['cliente']['nValor'].value
+            var vf = document.forms['cliente']['nFrete'].value
+
+            if(np.length > 1 && vf.length > 1 && vp.length > 1){
+                var linha = document.createElement("TR")
+
+                //coluna numero do pedido
+                var coluna1 = document.createElement("TD")
+                var conteudo1 = document.createTextNode(np)
+                coluna1.appendChild(conteudo1)
+                linha.appendChild(coluna1)
+
+                //coluna valor de pedido
+                var coluna2 = document.createElement("TD")
+                var conteudo2 = document.createTextNode(vp)
+                coluna2.appendChild(conteudo2)
+                linha.appendChild(coluna2)
+
+                //coluna valor do frete
+                var coluna3 = document.createElement("TD")
+                var conteudo3 = document.createTextNode(vf)
+                coluna3.appendChild(conteudo3)
+                linha.appendChild(coluna3)
+
+                //coluna dos botos de deletar
+                var coluna4 = document.createElement('TD')
+                var conteudo4 = document.createElement('INPUT')
+                conteudo4.setAttribute('type', 'button')
+                conteudo4.setAttribute('value', 'del')
+                var comando = 'deletar(this)'
+                conteudo4.setAttribute('onclick', comando)
+                coluna4.appendChild(conteudo4)
+                linha.appendChild(coluna4)
+
+                //joga pra dentro da pagina
+                document.getElementById('valores').appendChild(linha)
+
+                //soma os valores nas variaves globais
+                somaValor += parseFloat(vp)
+                somaFrete += parseInt(vf)
+                
+                exibir()
+                document.getElementById("nPedido").value = ""
+                document.getElementById("nValor").value = ""
+                document.getElementById("nFrete").value = ""
+                document.getElementById("nPedido").focus()
+
+
+            }else{
+                alert("Erro: só numeros")
+            }
+
+            
+    }
+
+    function enviar(){
+        var tabela = document.getElementById("valores");
+        var linhas = tabela.getElementsByTagName("tr");
+        var documento = {
+            nData: document.getElementById("nData").value,
+            sAgregado: document.getElementById("sAgregado").value,
+            item:[]
+        }
+        
+        for(i=1;i<linhas.length;i++){
+            linha = linhas[i].getElementsByTagName("td")
+            var item = {       
+                nPedido: linha[0].innerText,
+                nValor: linha[1].innerText,
+                nFrete: linha[2].innerText
+            }
+            documento.item.push(item)
+        }  
+        console.log(documento)  
+        
+        var d = {
+            agregado:documento.sAgregado,
+            data: documento.nData
+        } 
+         
+        $.post('/enviosaidanotas', documento)       
+        document.location.reload(true);
+
+    }
+
+    function deletar(r){
+        var tabela = document.getElementById("valores");
+        var linhas = tabela.getElementsByTagName("tr");
+        var i = r.parentNode.parentNode.rowIndex;
+        
+        var vp = linhas[i].getElementsByTagName('td')[1].innerHTML
+        var vf = linhas[i].getElementsByTagName('td')[2].innerHTML
+
+        somaValor -= parseFloat(vp)
+        somaFrete -= parseInt(vf)   
+        
+        exibir()
+        
+        document.getElementById("valores").deleteRow(i);
+    }
+
+    function exibir(){
+        var x = (somaFrete * 100)/ somaValor
+        console.log('valor ' + somaValor)
+        console.log('frete ' + somaFrete)
+        console.log(x)       
+
+        //joga pra pagina o precentual
+
+        var y = document.getElementById("percentagem")
+        y.innerHTML = x.toFixed(2) + '%'
+
+        if (x > 5){
+            y.style.color = 'red'
+        }
+        else{
+            y.style.color = "green"
+        }
+
+        var x = document.getElementById("frete")
+        x.innerHTML = 'Valor total dos fretes: ' + somaFrete
+
+        var z = document.getElementById("total")
+        z.innerHTML = 'Valor total das notas: ' + somaValor
+
+        
+
+
+    }
+
+    </script>

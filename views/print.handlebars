@@ -1,0 +1,66 @@
+<div style="margin: 90px;">
+    <div style="display: inline-flex;">
+        <h1 class="cabeca" >Saida das notas e pedidos que estão com os agragados </h1>
+        <a style="margin-left: 35px;" class="cabeca" href="/">Home</a>
+    </div>  
+        <div class="cabeca">
+        {{{agregado}}}
+        <div id="data"></div>
+    </div><br>
+    <table id="valores">
+        <tr>
+            <th>NUMERO DO PEDIDO/ NOTA FISCAL</th>
+            <th>VALOR DO PEDIDO</th>
+            <th>VALOR DO FRETE</th>
+            <th>ENTREGUE</th>      
+        </tr>
+            {{#linha}}
+            <tr>
+                <td>{{numNota}}</td>
+                <td>{{valorPedido}}</td>
+                <td>{{valorFrete}}</td>                
+                <td><input id="{{idItem}}" type="checkbox" onclick="check({{idItem}})" name="status" {{status}}></td>
+            </tr>
+           {{/linha}}
+        </table>
+    
+</div>
+<script>     
+    function data(){
+        var data = new Date("{{{data}}}")
+        document.getElementById('data').innerHTML = data.toLocaleDateString()
+    }
+    function check(id){
+        var checkBox = document.getElementById(id);
+        console.log(checkBox.checked)
+        if(checkBox.checked ==true){
+            checkBox = "checked"
+        } else{
+            checkBox = ""
+        }
+        var cao = {
+            idNota: id,
+            status: checkBox
+        }
+        console.log(cao)
+        $.post('/statusNotas', cao)
+    }
+
+    function enviar(){  
+        let data = document.getElementById("dataSaida").value
+        let agregado = document.getElementById("sAgregado").value
+
+            var item = {
+                dataSaida: data,
+                sAgregado: agregado,              
+            }
+            console.log(item)
+            $.get('/pesquisa', item)
+    }
+    
+
+
+
+
+    data()
+</script>

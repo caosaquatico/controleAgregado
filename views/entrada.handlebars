@@ -1,0 +1,74 @@
+<div style="margin: 90px;">
+    <div style="display: inline-flex;">
+        <h1 class="cabeca" >Entrada das notas e pedidos que estão com os agragados</h1>
+        <a class="cabeca" href="/">Home</a>
+    </div>  
+        <div>
+        <form action="/pesquisa" method="POST">
+        <input type="date" name="data" id="data">
+        <input list="lista" id="agregado" name="agregado" autocomplete="off" required>                    
+            <datalist id="lista">                
+                <option value="Altamir">Altamir</option>
+                <option value="Bonny">Bonny</option>
+                <option value="Dalsio">Dalsio</option>
+                <option value="Junior">Junior</option>
+                <option value="Leo Rosa">Leo Rosa</option>
+                <option value="Wagner">Wagner</option>                        
+            </datalist>
+        <input type="submit" value="Pesquisar">
+
+        
+        </form>
+    </div>
+ 
+    <table id="valores">
+        <tr>
+            <th>DATA DE SAIDA</th>
+            <th>NOME DO AGREGADO</th>
+            <th>NUMERO DO PEDIDO</th>
+            <th>VALOR DO PEDIDO</th>
+            <th>VALOR DO FRETE</th>
+            <th>ENTREGUE</th>      
+        </tr>
+            {{#linha}}
+            <tr>
+                <td>{{dataSaida}}</td>
+                <td>{{nomeAgregado}}</td>
+                <td>{{numNota}}</td>
+                <td>{{valorPedido}}</td>
+                <td>{{valorFrete}}</td>                
+                <td><input id="{{idItem}}" type="checkbox" onclick="check({{idItem}})" name="status" {{status}}></td>
+            </tr>
+           {{/linha}}
+        </table>
+    
+</div>
+<script>    
+    function check(id){
+        var checkBox = document.getElementById(id);
+        console.log(checkBox.checked)
+        if(checkBox.checked == true){
+            checkBox = "checked"
+        } else{
+            checkBox = ""
+        }
+        var cao = {
+            idNota: id,
+            status: checkBox
+        }
+        console.log(cao)
+        $.post('/statusNotas', cao)
+    }
+
+    function enviar(){  
+        let data = document.getElementById("dataSaida").value
+        let agregado = document.getElementById("sAgregado").value
+
+            var item = {
+                dataSaida: data,
+                sAgregado: agregado,              
+            }
+            console.log(item)
+            $.get('/pesquisa', item)
+    }
+</script>
